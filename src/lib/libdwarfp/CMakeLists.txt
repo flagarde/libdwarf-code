@@ -49,36 +49,44 @@ set_source_group(CONFIGURATION_FILES "Configuration Files"
     "${PROJECT_SOURCE_DIR}/cmake/config.h.in"
     "${PROJECT_BINARY_DIR}/config.h")
 
-if (BUILD_SHARED)
-    if(NOT BUILD_DWARFGEN)
-      set(CMAKE_C_VISIBILITY_PRESET hidden)
-    endif()
-    set(DEFS LIBDWARF_BUILD PIC)
-else()
-    set(DEFS LIBDWARF_STATIC)
-endif()
+add_library(dwarfp-shared SHARED ${SOURCES} ${HEADERS} ${CONFIGURATION_FILES})
+add_library(libdwarf::dwarfp-shared ALIAS dwarfp-shared)
+target_link_libraries(dwarfp-shared PRIVATE dwarf-shared)
+set_target_properties(dwarfp-shared PROPERTIES
+                                   OUTPUT_NAME dwarfp
+                                   PUBLIC_HEADER "libdwarfp.h"
+                                   VERSION "${PROJECT_VERSION}"
+                                   SOVERSION "${PROJECT_VERSION_MAJOR}"
+                                   FOLDER src/lib/libdwarfp
+                                   C_VISIBILITY_PRESET hidden
+                                   POSITION_INDEPENDENT_CODE ON
+                                   )
+target_compile_options(dwarfp-shared PRIVATE ${COMPILER_FLAGS} ${DW_FWALL} )
+target_compile_definitions(dwarfp-shared PUBLIC _GNU_SOURCE LIBDWARF_BUILD PIC)
+target_include_directories(dwarfp-shared PUBLIC
+                           $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src/lib/libdwarfp> $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>
+                           $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+                          )
+msvc_posix(dwarfp-shared)
 
-if (BUILD_SHARED)
-    add_library(dwarfp SHARED ${SOURCES} ${HEADERS} ${CONFIGURATION_FILES})
-    add_library(libdwarf::dwarfp-shared ALIAS dwarfp)
-else()
-    add_library(dwarfp STATIC ${SOURCES} ${HEADERS} ${CONFIGURATION_FILES})
-    add_library(libdwarf::dwarfp-static ALIAS dwarfp)
-endif()
-# Macos needs the PRIVATE too using APPLE
-# needed with MINGW OR MSYS OR WIN32 OR APPLE
-# allowed everywhere.
-target_link_libraries(dwarfp PRIVATE dwarf)
-set_folder(dwarfp src/lib/libdwarfp)
-target_compile_definitions(dwarfp PUBLIC ${DEFS})
-target_compile_definitions(dwarfp PRIVATE _GNU_SOURCE)
-set_target_properties(dwarfp PROPERTIES VERSION "${PROJECT_VERSION}" SOVERSION "${PROJECT_VERSION_MAJOR}")
-target_compile_options(dwarfp PRIVATE ${DW_COMPILER_FLAGS}
-    ${DW_FWALL})
-msvc_posix(dwarfp)
-set_target_properties(dwarfp PROPERTIES PUBLIC_HEADER "libdwarfp.h")
+add_library(dwarfp-static STATIC ${SOURCES} ${HEADERS} ${CONFIGURATION_FILES})
+add_library(libdwarf::dwarfp-static ALIAS dwarfp-static)
+target_link_libraries(dwarfp-static PRIVATE dwarf-static)
+set_target_properties(dwarfp-static PROPERTIES OUTPUT_NAME dwarfp
+                                              PUBLIC_HEADER "libdwarfp.h"
+                                              FOLDER src/lib/libdwarfp
+                                              POSITION_INDEPENDENT_CODE $<BOOL:${PIC_ALWAYS}>
+                                              )
+target_compile_definitions(dwarfp-static PRIVATE _GNU_SOURCE)
+target_compile_options(dwarfp-static PRIVATE ${COMPILER_FLAGS} ${DW_FWALL} )
+target_compile_definitions(dwarfp-static PUBLIC _GNU_SOURCE LIBDWARF_STATIC $<$<BOOL:${PIC_ALWAYS}>:PIC>)
+target_include_directories(dwarfp-static PUBLIC
+                           $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src/lib/libdwarfp> $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>
+                           $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+                          )
+msvc_posix(dwarfp-static)
 
-install(TARGETS dwarfp
+install(TARGETS dwarfp-static dwarfp-shared
         RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
         LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
         ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
@@ -91,7 +99,7 @@ install(TARGETS dwarfp
 # for newer cmake.
 configure_file(libdwarfp.pc.in libdwarfp.pc @ONLY)
 
-install(TARGETS dwarfp  EXPORT libdwarfpTargets
+install(TARGETS dwarfp-static dwarfp-shared  EXPORT libdwarfpTargets
         RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
         ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
         LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
