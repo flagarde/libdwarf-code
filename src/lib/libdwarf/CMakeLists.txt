@@ -170,7 +170,7 @@ configure_file(libdwarf.pc.in libdwarf.pc @ONLY)
 # for cmake before cmake 3.13. This also works
 # for newer cmake.
 include(CMakePackageConfigHelpers)
-configure_package_config_file(${PROJECT_SOURCE_DIR}/src/lib/libdwarf/cmake/libdwarfConfig.cmake.in "${CMAKE_CURRENT_BINARY_DIR}/libdwarfConfig.cmake" INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/libdwarf")
+configure_package_config_file(${PROJECT_SOURCE_DIR}/src/lib/libdwarf/cmake/libdwarfConfig.cmake "${CMAKE_CURRENT_BINARY_DIR}/libdwarfConfig.cmake" INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/libdwarf")
 write_basic_package_version_file("${CMAKE_CURRENT_BINARY_DIR}/libdwarfConfigVersion.cmake" VERSION "${PROJECT_VERSION}" COMPATIBILITY SameMinorVersion)
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/libdwarfConfig.cmake" "${CMAKE_CURRENT_BINARY_DIR}/libdwarfConfigVersion.cmake" DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/libdwarf")
 install(TARGETS dwarf-shared dwarf-static EXPORT libdwarfTargets
