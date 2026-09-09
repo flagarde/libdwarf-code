@@ -119,7 +119,8 @@ main(void)
     int failcount = 0;
 
     if (write_fat(f32, 0) || write_fat(f64, 1)) {
-        printf("FAIL test_macho_universal: cannot write test files\n");
+        printf("FAIL test_macho_universal: cannot write "
+            "test files\n");
         return 1;
     }
 
@@ -127,7 +128,8 @@ main(void)
     res64 = open_it(f64, &err64);
 
     if (res32 != res64 || err32 != err64) {
-        printf("FAIL test_macho_universal: FAT_MAGIC gives res %d err %d "
+        printf("FAIL test_macho_universal: FAT_MAGIC gives res"
+            " %d err %d "
             "but FAT_MAGIC_64 gives res %d err %d. "
             "The 64-bit arch table was misread.\n",
             res32, err32, res64, err64);
