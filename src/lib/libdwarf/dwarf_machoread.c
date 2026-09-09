@@ -1333,9 +1333,9 @@ _dwarf_object_detector_universal_head_fd(
             return DW_DLV_ERROR;
         }
         res = RRMOA(fd,fa,/*offset*/sizeof(fh),
-            duhd.au_count*sizeof(fa),
+            duhd.au_count*sizeof(*fa),
             dw_filesize,errcode);
-        if (res == DW_DLV_ERROR) {
+        if (res != DW_DLV_OK) {
             /* *errcode set by RRMOA */
             free(duhd.au_arches);
             duhd.au_arches = 0;
