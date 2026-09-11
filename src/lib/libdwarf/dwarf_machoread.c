@@ -258,11 +258,11 @@ macho_load_section (void *obj, Dwarf_Unsigned section_index,
     if (0 < section_index &&
         section_index < macho->mo_dwarf_sectioncount) {
         int res = 0;
-        /*   inner is zero except if unified binary.
-             If unified, mo_filesize does not include
-             inner (inner is the distance from zero
-             to the present macho header in the overall
-             universal binary). */
+        /*  inner is zero except if unified binary.
+            If unified, mo_filesize does not include
+            inner (inner is the distance from zero
+            to the present macho header in the overall
+            universal binary). */
         Dwarf_Unsigned inner = macho->mo_inner_offset;
         Dwarf_Unsigned full_offset = 0;
 
@@ -441,7 +441,7 @@ load_segment_command_content32(
         return DW_DLV_ERROR;
     }
     fulloffset = segoffset+inner;
-    if (fulloffset <segoffset || fulloffset < inner) { 
+    if (fulloffset <segoffset || fulloffset < inner) {
         /* overflow */
         *errcode = DW_DLE_ARITHMETIC_OVERFLOW;
         return DW_DLV_ERROR;
@@ -1025,8 +1025,8 @@ _dwarf_macho_object_access_internals_init(
             return res;
         }
         /*  At this point filesize is of the entire universal binary
-            file, filesizei is size of the uninumber-th macho binary 
-            in the overall file. 
+            file, filesizei is size of the uninumber-th macho binary
+            in the overall file.
             fileoffseti is the offset of the uninumber-th
             macho binary in the overall file */
         endoffset = fileoffseti+filesizei;
@@ -1280,9 +1280,11 @@ _dwarf_object_detector_universal_head_fd(
     }
     if (locoffsetsize == 32) {
         struct fat_arch * fa = 0;
+        Dwarf_Unsigned stsize = sizeof(struct fat_arch);
+        Dwarf_Unsigned bytecount = duhd.au_count*stsize;
 
         fa = (struct fat_arch *)calloc(duhd.au_count,
-            sizeof(struct fat_arch));
+            stsize);
         if (!fa) {
             free(duhd.au_arches);
             duhd.au_arches = 0;
@@ -1290,7 +1292,7 @@ _dwarf_object_detector_universal_head_fd(
             *errcode = DW_DLE_ALLOC_FAIL;
             return DW_DLV_ERROR;
         }
-        if (sizeof(fh)+duhd.au_count*sizeof(*fa) >= dw_filesize) {
+        if (sizeof(fh)+bytecount >= dw_filesize) {
             free(duhd.au_arches);
             duhd.au_arches = 0;
             free(fa);
@@ -1298,7 +1300,7 @@ _dwarf_object_detector_universal_head_fd(
             return DW_DLV_ERROR;
         }
         res = RRMOA(fd,fa,/*offset=*/sizeof(fh),
-            duhd.au_count*sizeof(*fa),
+            bytecount,
             dw_filesize,errcode);
         if (res != DW_DLV_OK) {
             free(duhd.au_arches);
@@ -1317,15 +1319,18 @@ _dwarf_object_detector_universal_head_fd(
         }
     } else { /* 64 */
         struct fat_arch_64 * fa = 0;
+        Dwarf_Unsigned stsize = sizeof(struct fat_arch_64);
+        Dwarf_Unsigned bytecount = duhd.au_count*stsize;
+
         fa = (struct fat_arch_64 *)calloc(duhd.au_count,
-            sizeof(struct fat_arch_64));
+            stsize);
         if (!fa) {
             free(duhd.au_arches);
             duhd.au_arches = 0;
             *errcode = DW_DLE_ALLOC_FAIL;
             return DW_DLV_ERROR;
         }
-        if (sizeof(fh)+duhd.au_count*sizeof(*fa) >= dw_filesize) {
+        if (sizeof(fh)+bytecount >= dw_filesize) {
             free(duhd.au_arches);
             duhd.au_arches = 0;
             free(fa);
@@ -1333,7 +1338,7 @@ _dwarf_object_detector_universal_head_fd(
             return DW_DLV_ERROR;
         }
         res = RRMOA(fd,fa,/*offset*/sizeof(fh),
-            duhd.au_count*sizeof(*fa),
+            bytecount,
             dw_filesize,errcode);
         if (res != DW_DLV_OK) {
             /* *errcode set by RRMOA */

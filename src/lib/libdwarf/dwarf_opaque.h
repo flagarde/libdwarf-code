@@ -700,7 +700,9 @@ struct Dwarf_Debug_s {
     /*  Number of bytes in the length, and offset field in various
         .debu* sections.  It's not very meaningful, and is
         only used in one 'approximate' calculation.
-        de_offset_size would be a more apropos name. */
+        de_offset_size would be a more apropos name.
+        If 32 is 32bit offsets.
+        If 64 is 64bit offsets. */
     Dwarf_Small de_length_size;
 
     /*  Size of the object file in bytes. If Unknown
@@ -1259,6 +1261,6 @@ _dwarf_entrypc(Dwarf_Die die,
 int _dwarf_get_suppress_debuglink_crc(void);
 void _dwarf_dumpsig(const char *msg, Dwarf_Sig8 *sig, int lineno);
 
-/*  solely to avoid duplicate reporting of a warning 
+/*  solely to avoid duplicate reporting of a warning
     reading a line table header.  */
 extern int _dw_linetab_harmless_reported;
