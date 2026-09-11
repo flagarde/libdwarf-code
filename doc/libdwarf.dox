@@ -3,7 +3,7 @@
     @tableofcontents{HTML:3,LaTeX:3}
     @author David Anderson
     @copyright  This work is licensed under the Creative Commons Attribution 4.0 International License. To view a copy of this license, visit http://creativecommons.org/licenses/by/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
-    @date 2026-08-23 v2.3.3
+    @date 2026-09-11 v2.3.3
 
     @section draft Suggestions for improvement are welcome.
 
@@ -1175,7 +1175,6 @@
     function call.    
 
     Calling dwarf_set_load_preference(0)
-    will return the current overall preference 
     will return the current overall preference,
     an instance of
     
@@ -1189,14 +1188,12 @@
     dwarf_get_mmap_count(Dwarf_Debug dw_dbg)
     @endcode
 
-    returns the application count and size
-    of allocations for DWARF sections
-    from the open Dwarf_Debug
-    pointer. 
+    returns the application count and size of allocations
+    for DWARF sections from the open Dwarf_Debug pointer.
 
-    Each supported build environment has a new
-    build option to prevent libdwarf from assuming
-    that things in the build are always present.
+    Each supported build environment has a new build option
+    to prevent libdwarf from assuming that things in the
+    build are always present.
 
     @section dwsec_changes Recent Changes
 
@@ -1204,19 +1201,26 @@
 
     <b>Changes 2.3.2 to 2.3.3</b>
 
-    Now detects a (corrupted) DWARF4 or later
-    line table header with 
-    maximum operations per instruction
-    of zero and returns an error.
-    To avoid than later crashing on division by zero.
+    Now detects a (corrupted) DWARF4 or later line table
+    header with maximum operations per instruction of
+    zero (a compiler error) and records a harmless error.
+    These can be reported via dwarfdump -ka, though only
+    one instance is reported.
+
+    Fixed a bug reading a Macos universal binary object
+    file (64bit).
+
+    Fixed a bug reading Elf SHF_COMPRESSED sections in
+    64bit object files. 
+    
 
     <b>Changes 2.3.1 to 2.3.2</b>
 
     Released 7 July 2026.
 
-    Now libdwarf will decompress any library-relevant 
-    compressed Elf sections.  In previous versions
-    only a small subset of Elf sections could be decompressed.
+    Now libdwarf will decompress any library-relevant
+    compressed Elf sections.  In previous versions only
+    a small subset of Elf sections could be decompressed.
 
     The new code was detected as having vulnerabilities
     by oss fuzz systems, some testing against

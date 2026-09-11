@@ -163,7 +163,8 @@ getbitsoncount(Dwarf_Unsigned v_in)
 
 #if defined(HAVE_ZLIB) && defined(HAVE_ZSTD)
 /*  This is exclusively for reading .symtab and .symstr
-    sections. See dwarf_elf_init() for decompressing all
+    sections. See dwarf_elf_init() (do_decompress())
+    for decompressing all
     other sections. We need decompress to do relocations (if any
     relocations and if either of these sections compressed).  */
 int
@@ -179,13 +180,34 @@ _dwarf_do_decompress_elf(dwarf_elf_object_access_internals_t *ep,
     Dwarf_Small   *endsection = 0;
     int            zstdcompress = FALSE;
     Dwarf_Unsigned uncompressed_len = 0;
+    unsigned fieldsize    = ep->f_pointersize/8;
+    unsigned structsize = 12; /* Usually correct */
 
     basesrc = (Dwarf_Small*)psh->gh_content;
     srclen = psh->gh_size;
     flags = psh->gh_flags;
 
     endsection = basesrc + srclen;
-    if ((basesrc + 12) > endsection) {
+    if (!strncmp("ZLIB",(const char *)basesrc,4)) {
+    } else  if (flags & SHF_COMPRESSED) {
+        switch(fieldsize) {
+        case 4:
+            break;
+        case 8:
+            structsize = 3 * 8;
+            break;
+        default:
+            /* Likely a corrupt object file. */
+            *error = DW_DLE_COMPRESSED_FORMAT_UNKNOWN;
+            return DW_DLV_ERROR;
+        }
+    } else {
+        /* Likely a corrupt object file. */
+        *error = DW_DLE_COMPRESSED_FORMAT_UNKNOWN;
+        return DW_DLV_ERROR;
+    }
+
+    if ((basesrc + structsize) > endsection) {
         *error = DW_DLE_ZLIB_SECTION_SHORT;
         /*_dwarf_error_string(dbg, error,DW_DLE_ZLIB_SECTION_SHORT,
             "DW_DLE_ZLIB_SECTION_SHORT"
@@ -218,14 +240,12 @@ _dwarf_do_decompress_elf(dwarf_elf_object_access_internals_t *ep,
         Dwarf_Unsigned type = 0;
         Dwarf_Unsigned size = 0;
         /* Dwarf_Unsigned addralign = 0; */
-        unsigned fldsize    = ep->f_pointersize/8;
-        unsigned structsize = 3* fldsize;
         ASNARLRAW(ep->f_copy_word,error,type,ptr,DWARF_32BIT_SIZE);
         if (*error) {
             return DW_DLV_ERROR;
         }
-        ptr += fldsize;
-        ASNARLRAW(ep->f_copy_word,error,size,ptr,fldsize);
+        ptr += fieldsize;
+        ASNARLRAW(ep->f_copy_word,error,size,ptr,fieldsize);
         if (*error) {
             return DW_DLV_ERROR;
         }
@@ -245,10 +265,6 @@ _dwarf_do_decompress_elf(dwarf_elf_object_access_internals_t *ep,
         uncompressed_len = size;
         basesrc    += structsize;
         srclen -= structsize;
-    } else {
-        /* Likely a corrupt object file. */
-        *error = DW_DLE_COMPRESSED_FORMAT_UNKNOWN;
-        return DW_DLV_ERROR;
     }
     /*  Dropped heuristic of excess compress inflation.
         Not reliable. */

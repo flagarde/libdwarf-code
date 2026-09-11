@@ -2,6 +2,7 @@
     Copyright (c) 2026 David Anderson
     This testcase is hereby in the public domain for anyone
     to use or copy for anypurpose.
+
 */
 
 #if 0
@@ -24,6 +25,10 @@ Root cause: the length check only requires 12 bytes (GNU
 code then does ASNARLRAW(..., fldsize=8) of ch_size at offset
 8 with no end-pointer check, reading 8 bytes past the 12-byte
 heap buffer.
+
+The test is only really useful when libdwarf and this
+test compiled -fsanitize. Such will be added to
+libdwarf-regressiontests
 
 #endif /* 0 */
 

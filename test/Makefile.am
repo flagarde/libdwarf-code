@@ -70,6 +70,7 @@ TESTS = test_canonical  \
   test_linkedtopath \
   test_lname \
   test_macho_universal \
+  test_compress64 \
   test_macrocheck \
   test_makenametest \
   test_regex \
@@ -92,6 +93,7 @@ check_PROGRAMS = test_canonical \
   test_linkedtopath \
   test_lname \
   test_macho_universal \
+  test_compress64 \
   test_macrocheck \
   test_makenametest \
   test_regex \
@@ -100,6 +102,14 @@ check_PROGRAMS = test_canonical \
   test_testesb \
   test_sanitized \
   test_tied
+
+test_compress64_SOURCES = test_macho_universal.c
+test_compress64_CFLAGS = $(DWARF_CFLAGS_WARN) \
+    -fno-omit-frame-pointer
+test_compress64_CPPFLAGS = \
+-I$(top_srcdir) -I$(top_builddir) \
+-I$(top_srcdir)/src/lib/libdwarf
+test_compress64_LDADD = $(top_builddir)/src/lib/libdwarf/libdwarf.la
 
 test_macho_universal_SOURCES = test_macho_universal.c
 test_macho_universal_CFLAGS = $(DWARF_CFLAGS_WARN)

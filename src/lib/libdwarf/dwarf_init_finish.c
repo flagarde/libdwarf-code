@@ -780,8 +780,11 @@ _dwarf_setup(Dwarf_Debug dbg, Dwarf_Error * error)
 #endif /* !WORDS_BIGENDIAN */
 
     /*  The following de_length_size is Not Too Significant.
-        Only used one calculation, and an approximate one
-        at that. */
+        One calculation is an approximate one
+        at that.
+        For ELF32 the value is 4.
+        For ELF64 the value is 8. Similarly for Macos
+        and PE. */
     dbg->de_length_size = obj->ai_methods->
         om_get_length_size(obj->ai_object);
     dbg->de_pointer_size =
@@ -1289,9 +1292,9 @@ check_uncompr_inflation(Dwarf_Debug dbg,
     The section flag bit  SHF_COMPRESSED (1 << 11)
     must be set.
     we then do the equivalent of reading a
-        Elf32_External_Chdr
+        Elf32_External_Chdr (len 12)
     or
-        Elf64_External_Chdr
+        Elf64_External_Chdr (len 24)
     to get the type (which must be 1 (zlib) or 2 (zstd))
     and the decompressed_length.
     Then what follows the implicit Chdr is decompressed.
@@ -1306,6 +1309,8 @@ check_uncompr_inflation(Dwarf_Debug dbg,
 #define ALLOWED_ZSTD_INFLATION 32
 #endif /* 0 */
 
+/*  See _dwarf_do_decompress_elf() for a similar
+    operation (dwarf_elf_load_headers.c). */
 static int
 do_decompress(Dwarf_Debug dbg,
     struct Dwarf_Section_s *section,
@@ -1320,9 +1325,41 @@ do_decompress(Dwarf_Debug dbg,
     Dwarf_Small *endsection = 0;
     int zstdcompress = FALSE;
     Dwarf_Unsigned uncompressed_len = 0;
+    Dwarf_Unsigned headersize = 12; /* Usually right */
+    Dwarf_Unsigned fieldsize = dbg->de_pointer_size;
 
     endsection = basesrc + section->dss_size;
-    if ((basesrc + 12) > endsection) {
+    if (!strncmp("ZLIB",(const char *)src,4)) {
+    } else  if (flags & SHF_COMPRESSED) {
+        switch(fieldsize) {
+        case 4:
+            break;
+        case 8:
+            /*  The one case 12 is wrong. */
+            headersize = 24;
+            break;
+        default: {
+            dwarfstring m;
+            dwarfstring_constructor(&m);
+            dwarfstring_append_printf_u(&m,
+                "DW_DLE_ZDEBUG_INPUT_FORMAT_ODD"
+                " has bogus pointer/address size of %u. ",
+                fieldsize);
+            _dwarf_error_string(dbg, error,
+                DW_DLE_ZDEBUG_INPUT_FORMAT_ODD,
+                dwarfstring_string(&m));
+            return DW_DLV_ERROR;
+        }
+        }
+    } else {
+        _dwarf_error_string(dbg, error,
+            DW_DLE_ZDEBUG_INPUT_FORMAT_ODD,
+            "DW_DLE_ZDEBUG_INPUT_FORMAT_ODD"
+            " The compressed section is not properly formatted");
+        return DW_DLV_ERROR;
+    }
+
+    if ((basesrc + headersize) > endsection) {
         _dwarf_error_string(dbg, error,DW_DLE_ZLIB_SECTION_SHORT,
             "DW_DLE_ZLIB_SECTION_SHORT"
             "Section too short to be either zlib or zstd related");
@@ -1341,8 +1378,8 @@ do_decompress(Dwarf_Debug dbg,
             uncompressed_len <<= 8;
             uncompressed_len += *c;
         }
-        src = src + 12;
-        srclen -= 12;
+        src = src + headersize;
+        srclen -= headersize;
         section->dss_uncompressed_length = uncompressed_len;
         section->dss_ZLIB_compressed = TRUE;
     } else  if (flags & SHF_COMPRESSED) {
@@ -1355,13 +1392,11 @@ do_decompress(Dwarf_Debug dbg,
         Dwarf_Unsigned type = 0;
         Dwarf_Unsigned size = 0;
         /* Dwarf_Unsigned addralign = 0; */
-        unsigned fldsize    = dbg->de_pointer_size;
-        unsigned structsize = 3* fldsize;
         READ_UNALIGNED_CK(dbg,type,Dwarf_Unsigned,ptr,
             DWARF_32BIT_SIZE,
             error,endsection);
-        ptr += fldsize;
-        READ_UNALIGNED_CK(dbg,size,Dwarf_Unsigned,ptr,fldsize,
+        ptr += fieldsize;
+        READ_UNALIGNED_CK(dbg,size,Dwarf_Unsigned,ptr,fieldsize,
             error,endsection);
         switch(type) {
         case ELFCOMPRESS_ZLIB:
@@ -1384,18 +1419,12 @@ do_decompress(Dwarf_Debug dbg,
             dwarfstring_destructor(&m);
             return DW_DLV_ERROR;
         }
-        }
+        } /* end switch */
         uncompressed_len = size;
         section->dss_uncompressed_length = uncompressed_len;
-        src    += structsize;
-        srclen -= structsize;
+        src    += headersize;
+        srclen -= headersize;
         section->dss_shf_compressed = TRUE;
-    } else {
-        _dwarf_error_string(dbg, error,
-            DW_DLE_ZDEBUG_INPUT_FORMAT_ODD,
-            "DW_DLE_ZDEBUG_INPUT_FORMAT_ODD"
-            " The compressed section is not properly formatted");
-        return DW_DLV_ERROR;
     }
     /*  Dropped heuristic of excess compress inflation.
         Not reliable. */
