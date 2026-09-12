@@ -135,7 +135,7 @@ set_target_properties(dwarf-shared PROPERTIES
                                    PUBLIC_HEADER "libdwarf.h;dwarf.h"
                                    VERSION "${PROJECT_VERSION}"
                                    SOVERSION "${PROJECT_VERSION_MAJOR}")
-target_compile_definitions(dwarf-shared PUBLIC LIBDWARF_BUILD PIC)
+target_compile_definitions(dwarf-shared PRIVATE LIBDWARF_BUILD PUBLIC PIC)
 target_link_libraries(dwarf-shared PRIVATE ZLIB::ZLIB ${ZSTD_LIB})
 target_include_directories(dwarf-shared PUBLIC
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src/lib/libdwarf>

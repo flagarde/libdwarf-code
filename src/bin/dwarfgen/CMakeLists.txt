@@ -21,13 +21,11 @@ add_executable(dwarfgen ${SOURCES} ${HEADERS} ${CONFIGURATION_FILES})
 
 set_folder(dwarfgen src/bin/dwarfgen)
 dwarf_common_options(dwarfgen)
-target_compile_definitions(dwarfgen PRIVATE ${DW_LIBDWARF_STATIC})
-message("Current cmake src dir ${CMAKE_CURRENT_SOURCE_DIR}")
-target_include_directories(dwarfgen PRIVATE
-   ${CMAKE_CURRENT_SOURCE_DIR}/../../lib/libdwarf
-   ${CMAKE_CURRENT_SOURCE_DIR}/../../lib/libdwarfp)
+#target_include_directories(dwarfgen PRIVATE
+#   ${CMAKE_CURRENT_SOURCE_DIR}/../../lib/libdwarf
+#   ${CMAKE_CURRENT_SOURCE_DIR}/../../lib/libdwarfp)
 
-target_link_libraries(dwarfgen PRIVATE dwarfp dwarf-static)
+target_link_libraries(dwarfgen PRIVATE dwarfp-static dwarf-static)
 
 install(TARGETS dwarfgen DESTINATION
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
