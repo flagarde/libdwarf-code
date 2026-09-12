@@ -85,13 +85,22 @@ add_library(libdwarf::dwarfp-static ALIAS dwarfp-static)
 
 configure_file(libdwarfp.pc.in libdwarfp.pc @ONLY)
 
-install(TARGETS dwarfp-static dwarfp-shared
+if(INSTALL_STATIC_LIBRARIES)
+  set(DWARFP_STATIC_LIB "dwarfp-static")
+endif()
+
+install(TARGETS dwarfp-shared ${DWARFP_STATIC_LIB}
         EXPORT libdwarfpTargets
         RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
         ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
         LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
         PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
         )
+export(
+  TARGETS dwarfp-shared ${DWARFP_STATIC_LIB}
+  NAMESPACE libdwarfp::
+  FILE "${CMAKE_CURRENT_BINARY_DIR}/libdwarfp-targets.cmake"
+)
 install(EXPORT libdwarfpTargets FILE libdwarfp-targets.cmake
         NAMESPACE libdwarfp::
         DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/libdwarfp")

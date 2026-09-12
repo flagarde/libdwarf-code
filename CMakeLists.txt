@@ -14,6 +14,7 @@ option(ENABLE_DECOMPRESSION
 
 #  This adds compiler option -Wall (gcc compiler warnings)
 option(WALL "Add -Wall" FALSE)
+option(INSTALL_STATIC_LIBRARIES "Install the static libraries" FALSE)
 option(BUILD_DWARFDUMP "Build dwarfdump (default is YES)" TRUE)
 option(BUILD_DWARFGEN "Build dwarfgen (default is NO)" TRUE)
 message(STATUS "Building dwarfgen    ... ${BUILD_DWARFGEN}")

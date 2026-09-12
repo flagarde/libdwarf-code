@@ -175,7 +175,13 @@ include(CMakePackageConfigHelpers)
 configure_package_config_file(${PROJECT_SOURCE_DIR}/src/lib/libdwarf/cmake/libdwarfConfig.cmake.in "${CMAKE_CURRENT_BINARY_DIR}/libdwarfConfig.cmake" INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/libdwarf")
 write_basic_package_version_file("${CMAKE_CURRENT_BINARY_DIR}/libdwarfConfigVersion.cmake" VERSION "${PROJECT_VERSION}" COMPATIBILITY SameMinorVersion)
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/libdwarfConfig.cmake" "${CMAKE_CURRENT_BINARY_DIR}/libdwarfConfigVersion.cmake" DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/libdwarf")
-install(TARGETS dwarf-shared dwarf-static EXPORT libdwarfTargets
+
+if(INSTALL_STATIC_LIBRARIES)
+  set(DWARF_STATIC_LIB "dwarf-static")
+endif()
+
+install(TARGETS dwarf-shared ${DWARF_STATIC_LIB}
+        EXPORT libdwarfTargets
         ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
         LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
         PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
@@ -184,7 +190,7 @@ install(EXPORT libdwarfTargets
         NAMESPACE libdwarf::
         DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/libdwarf")
 export(
-  TARGETS dwarf-shared dwarf-static
+  TARGETS dwarf-shared ${DWARF_STATIC_LIB}
   NAMESPACE libdwarf::
   FILE "${CMAKE_CURRENT_BINARY_DIR}/libdwarf-targets.cmake"
 )
