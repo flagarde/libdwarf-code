@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.12)
 project(libdwarf VERSION 2.3.3 
     DESCRIPTION "Library to access DWARF debugging information" 
     HOMEPAGE_URL "https://github.com/davea42/libdwarf-code.git"
-    LANGUAGES C CXX)
+    LANGUAGES C)
 
 # libdwarf
 option(BUILD_MMAP "build library allowing mmap" TRUE)
@@ -17,7 +17,17 @@ option(WALL "Add -Wall" FALSE)
 option(INSTALL_STATIC_LIBRARIES "Install the static libraries" FALSE)
 option(BUILD_DWARFDUMP "Build dwarfdump (default is YES)" TRUE)
 option(BUILD_DWARFGEN "Build dwarfgen (default is NO)" FALSE)
-message(STATUS "Building dwarfgen    ... ${BUILD_DWARFGEN}")
+if(BUILD_DWARFGEN)
+  include(CheckLanguage)
+  check_language(CXX)
+  if(CMAKE_CXX_COMPILER)
+    enable_language(CXX)
+  else()
+    message(STATUS "No C++ compiler available; disabling dwarfgen")
+    set(BUILD_DWARFGEN OFF CACHE BOOL "Build dwarfgen" FORCE)
+  endif()
+  message(STATUS "Building dwarfgen ... ${BUILD_DWARFGEN}")
+endif()
 
 option(BUILD_DWARFEXAMPLE "Build dwarfexample (default is NO)" FALSE)
 message(STATUS "Building dwarfexample... ${BUILD_DWARFEXAMPLE}")
