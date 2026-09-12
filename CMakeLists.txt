@@ -16,13 +16,13 @@ option(ENABLE_DECOMPRESSION
 option(WALL "Add -Wall" FALSE)
 option(INSTALL_STATIC_LIBRARIES "Install the static libraries" FALSE)
 option(BUILD_DWARFDUMP "Build dwarfdump (default is YES)" TRUE)
-option(BUILD_DWARFGEN "Build dwarfgen (default is NO)" TRUE)
+option(BUILD_DWARFGEN "Build dwarfgen (default is NO)" FALSE)
 message(STATUS "Building dwarfgen    ... ${BUILD_DWARFGEN}")
 
-option(BUILD_DWARFEXAMPLE "Build dwarfexample (default is NO)" TRUE)
+option(BUILD_DWARFEXAMPLE "Build dwarfexample (default is NO)" FALSE)
 message(STATUS "Building dwarfexample... ${BUILD_DWARFEXAMPLE}")
 
-option(DO_TESTING "Do certain api tests (default is NO)" TRUE)
+option(DO_TESTING "Do certain api tests (default is NO)" FALSE)
 message(STATUS "Building api tests   ... ${DOTESTS}")
 ### end what was configure.cmake
 
