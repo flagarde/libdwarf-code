@@ -71,7 +71,7 @@ target_compile_definitions(dwarfdump PRIVATE
     _GNU_SOURCE)
 target_compile_options(dwarfdump PRIVATE ${DW_FWALL})
 
-target_link_libraries(dwarfdump PRIVATE dwarf)
+target_link_libraries(dwarfdump PRIVATE dwarf-static)
 
 install(TARGETS dwarfdump DESTINATION
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
