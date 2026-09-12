@@ -6,8 +6,6 @@ project(libdwarf VERSION 2.3.3
     LANGUAGES C CXX)
 
 # libdwarf
-option(BUILD_NON_SHARED "build archive library libdwarf[p].a" TRUE)
-option(BUILD_SHARED "build shared library libdwarf[p].so and use it" FALSE)
 option(BUILD_MMAP "build library allowing mmap" TRUE)
 
 option(ENABLE_DECOMPRESSION
@@ -16,10 +14,7 @@ option(ENABLE_DECOMPRESSION
 
 #  This adds compiler option -Wall (gcc compiler warnings)
 option(WALL "Add -Wall" FALSE)
-option(LIBDWARF_STATIC "add -DLIBDWARF_STATIC" FALSE)
-
 option(BUILD_DWARFDUMP "Build dwarfdump (default is YES)" TRUE)
-
 option(BUILD_DWARFGEN "Build dwarfgen (default is NO)" FALSE)
 message(STATUS "Building dwarfgen    ... ${BUILD_DWARFGEN}")
 
@@ -267,21 +262,8 @@ else()
   unset(DW_FWALL )
   message(STATUS "Compiler warning options... NO")
 endif()
-#if (LIBDWARF_STATIC)
-#  set(DW_LIBDWARF_STATIC -DLIBDWARF_STATIC)
-#else()
-#  unset(DW_LIBDWARF_STATIC)
-#endif()
 
 configure_file(cmake/config.h.in config.h)
-
-if(BUILD_NON_SHARED)
-  set(DW_LIBDWARF_STATIC -DLIBDWARF_STATIC)
-  set(BUILD_SHARED_LIBS NO)
-else()
-  unset(DW_LIBDWARF_STATIC)
-  set(BUILD_SHARED_LIBS YES)
-endif()
 
 include(GNUInstallDirs)
 
