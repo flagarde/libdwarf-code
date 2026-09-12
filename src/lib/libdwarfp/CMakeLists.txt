@@ -45,11 +45,7 @@ dwarf_pro_section.h
 dwarf_pro_types.h
 dwarf_pro_util.h)
 
-set_source_group(CONFIGURATION_FILES "Configuration Files"
-    "${PROJECT_SOURCE_DIR}/cmake/config.h.in"
-    "${PROJECT_BINARY_DIR}/config.h")
-
-add_library(dwarfp-shared SHARED ${SOURCES} ${HEADERS} ${CONFIGURATION_FILES})
+add_library(dwarfp-shared SHARED ${SOURCES} ${HEADERS})
 target_link_libraries(dwarfp-shared PRIVATE dwarf-shared)
 set_target_properties(dwarfp-shared PROPERTIES
                                     C_VISIBILITY_PRESET hidden

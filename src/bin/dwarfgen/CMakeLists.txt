@@ -22,11 +22,7 @@ strtabdata.h
 dg_getopt.h
 )
 
-set_source_group(CONFIGURATION_FILES "Configuration Files"
-    ${PROJECT_SOURCE_DIR}/cmake/config.h.in
-    ${PROJECT_BINARY_DIR}/config.h)
-
-add_executable(dwarfgen ${SOURCES} ${HEADERS} ${CONFIGURATION_FILES})
+add_executable(dwarfgen ${SOURCES} ${HEADERS})
 
 set_folder(dwarfgen src/bin/dwarfgen)
 dwarf_common_options(dwarfgen)

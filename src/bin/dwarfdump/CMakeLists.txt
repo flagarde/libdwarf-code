@@ -96,12 +96,8 @@ dd_tsearchbal.h
 print_frames.h
 dd_uri.h dd_utf8.h
 )
-
-set_source_group(CONFIGURATION_FILES "Configuration Files"
-  ${PROJECT_SOURCE_DIR}/cmake/config.h.in
-  ${PROJECT_BINARY_DIR}/config.h)
 	
-add_executable(dwarfdump ${SOURCES} ${HEADERS} ${CONFIGURATION_FILES})
+add_executable(dwarfdump ${SOURCES} ${HEADERS})
 dwarf_common_options(dwarfdump)
 set_folder(dwarfdump src/bin/dwarfdump)
 
