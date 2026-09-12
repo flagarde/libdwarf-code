@@ -253,15 +253,49 @@ endif ()
 
 message(STATUS "CMAKE_SIZEOF_VOID_P ... : ${CMAKE_SIZEOF_VOID_P}")
 
-#  DW_FWALLXX are gnu C++ options.
-if (WALL)
-  set(DW_FWALLXX -Wall -Wextra -Wno-unused-private-field -Wpointer-arith -Wmissing-declarations -Wcomment -Wformat -Wpedantic -Wuninitialized -Wshadow -Wno-long-long -Werror)
-  set(DW_FWALL ${DW_FWALLXX} -Wpointer-arith -Wmissing-declarations -Wmissing-prototypes -Wdeclaration-after-statement -Wextra -Wcomment -Wformat -Wpedantic -Wuninitialized -Wno-long-long -Wshadow -Werror )
-  message(STATUS "Compiler warning options... YES ${DW_FWALL}")
+if(WALL)
+  message(STATUS "Compiler warning options... YES")
 else()
-  unset(DW_FWALL )
   message(STATUS "Compiler warning options... NO")
 endif()
+
+function(dwarf_common_options TARGET)
+  msvc_posix(${TARGET})
+  target_compile_definitions(${TARGET} INTERFACE $<$<PLATFORM_ID:Linux>:_GNU_SOURCE>)
+  target_compile_options(${TARGET} INTERFACE
+    ${COMPILER_FLAGS}
+    $<$<AND:$<BOOL:${WALL}>,$<COMPILE_LANGUAGE:CXX>,$<CXX_COMPILER_ID:GNU,Clang,AppleClang>>:
+        -Wall
+        -Wextra
+        -Wno-unused-private-field
+        -Wpointer-arith
+        -Wmissing-declarations
+        -Wcomment
+        -Wformat
+        -Wpedantic
+        -Wuninitialized
+        -Wshadow
+        -Wno-long-long
+        -Werror
+    >
+    $<$<AND:$<BOOL:${WALL}>,$<COMPILE_LANGUAGE:C>,$<C_COMPILER_ID:GNU,Clang,AppleClang>>:
+        -Wall
+        -Wextra
+        -Wno-unused-private-field
+        -Wpointer-arith
+        -Wmissing-declarations
+        -Wcomment
+        -Wformat
+        -Wpedantic
+        -Wuninitialized
+        -Wshadow
+        -Wno-long-long
+        -Werror
+        -Wmissing-prototypes -Wdeclaration-after-statement
+    >
+)
+endfunction()
+
 
 configure_file(cmake/config.h.in config.h)
 
