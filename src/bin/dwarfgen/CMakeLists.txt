@@ -1,17 +1,26 @@
-set_source_group(SOURCES "Source Files" createirepformfrombinary.cc
-    createirepfrombinary.cc
-    dwarfgen.cc irepattrtodbg.cc ireptodbg.cc
-    dg_getopt.cc)
+set_source_group(SOURCES "Source Files"
+createirepformfrombinary.cc
+createirepfrombinary.cc
+dwarfgen.cc
+irepattrtodbg.cc
+ireptodbg.cc
+dg_getopt.cc)
 
-set_source_group(HEADERS "Header Files" createirepfrombinary.h
-    general.h irepattrtodbg.h
-    irepdie.h irepform.h irepframe.h
-    irepline.h irepmacro.h ireppubnames.h
-    irepresentation.h ireptodbg.h strtabdata.h
-    ../../lib/libdwarf/libdwarf_private.h
-    dg_getopt.h
-    ../../lib/libdwarf/dwarf.h
-    ../../lib/libdwarfp/libdwarfp.h)
+set_source_group(HEADERS "Header Files"
+createirepfrombinary.h
+general.h
+irepattrtodbg.h
+irepdie.h
+irepform.h
+irepframe.h
+irepline.h
+irepmacro.h
+ireppubnames.h
+irepresentation.h
+ireptodbg.h
+strtabdata.h
+dg_getopt.h
+)
 
 set_source_group(CONFIGURATION_FILES "Configuration Files"
     ${PROJECT_SOURCE_DIR}/cmake/config.h.in

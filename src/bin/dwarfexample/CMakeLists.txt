@@ -1,7 +1,7 @@
 
 add_library(dwarf_example INTERFACE)
 dwarf_common_options(dwarf_example)
-target_compile_definitions(dwarf_example INTERFACE CONFPREFIX={CMAKE_INSTALL_PREFIX}/lib ${DW_LIBDWARF_STATIC})
+target_compile_definitions(dwarf_example INTERFACE CONFPREFIX={CMAKE_INSTALL_PREFIX}/lib)
 target_link_libraries(dwarf_example INTERFACE dwarf-shared)
 
 add_executable(simplereader simplereader.c)
