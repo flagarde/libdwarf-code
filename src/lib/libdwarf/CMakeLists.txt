@@ -136,7 +136,7 @@ set_target_properties(dwarf-shared PROPERTIES
                                    VERSION "${PROJECT_VERSION}"
                                    SOVERSION "${PROJECT_VERSION_MAJOR}")
 target_compile_definitions(dwarf-shared PRIVATE LIBDWARF_BUILD PUBLIC PIC)
-target_link_libraries(dwarf-shared PRIVATE ZLIB::ZLIB ${ZSTD_LIB})
+target_link_libraries(dwarf-shared PRIVATE $<$<AND:$<BOOL:${ZLIB_FOUND}>,$<BOOL:${zstd_FOUND}>>:ZLIB::ZLIB;${ZSTD_LIB}>)
 target_include_directories(dwarf-shared PUBLIC
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src/lib/libdwarf>
     $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>
@@ -157,7 +157,7 @@ set_target_properties(dwarf-static PROPERTIES
                                    EXPORT_NAME "dwarf-static"
                                    PUBLIC_HEADER "libdwarf.h;dwarf.h")
 target_compile_definitions(dwarf-static PUBLIC LIBDWARF_STATIC $<$<BOOL:${PIC_ALWAYS}>:PIC>)
-target_link_libraries(dwarf-static PRIVATE ZLIB::ZLIB ${ZSTD_LIB})
+target_link_libraries(dwarf-static PRIVATE $<$<AND:$<BOOL:${ZLIB_FOUND}>,$<BOOL:${zstd_FOUND}>>:ZLIB::ZLIB;${ZSTD_LIB}>)
 target_include_directories(dwarf-static PUBLIC
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src/lib/libdwarf>
     $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>
