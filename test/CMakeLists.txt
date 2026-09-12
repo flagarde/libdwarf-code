@@ -1,6 +1,6 @@
 add_library(dwarf_tests INTERFACE)
-target_compile_definitions(dwarf_tests INTERFACE ${DW_LIBDWARF_STATIC} _GNU_SOURCE TESTING LIBDWARF_BUILD)
-target_compile_options(dwarf_tests INTERFACE ${DW_FWALL})
+dwarf_common_options(dwarf_tests)
+target_compile_definitions(dwarf_tests INTERFACE ${DW_LIBDWARF_STATIC} TESTING LIBDWARF_BUILD)
 target_include_directories(dwarf_tests INTERFACE "${PROJECT_SOURCE_DIR}/src/lib/libdwarf" "${PROJECT_SOURCE_DIR}/src/lib/libdwarfp" "${PROJECT_SOURCE_DIR}/src/bin/dwarfdump")
 
   add_executable(selfteststring
@@ -143,12 +143,12 @@ target_include_directories(dwarf_tests INTERFACE "${PROJECT_SOURCE_DIR}/src/lib/
 
   add_executable(selfmachouniversal
     "${PROJECT_SOURCE_DIR}/test/test_macho_universal.c")
-  target_link_libraries(selfmachouniversal PRIVATE dwarf_tests dwarf)
+  target_link_libraries(selfmachouniversal PRIVATE dwarf_tests dwarf-shared)
   add_test(NAME selfmachouniversal COMMAND selfmachouniversal)
 
   add_executable(selfcompress64
     "${PROJECT_SOURCE_DIR}/test/test_compress64.c")
-  target_link_libraries(selfcompress64 PRIVATE dwarf_tests dwarf)
+  target_link_libraries(selfcompress64 PRIVATE dwarf_tests dwarf-static)
   add_test(NAME selfcompress64 COMMAND selfcompress64)
 
 if(NOT WIN32)

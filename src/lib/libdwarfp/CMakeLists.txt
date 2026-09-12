@@ -60,21 +60,21 @@ endif()
 
 if (BUILD_SHARED)
     add_library(dwarfp SHARED ${SOURCES} ${HEADERS} ${CONFIGURATION_FILES})
+    target_link_libraries(dwarfp PRIVATE dwarf-shared)
     add_library(libdwarf::dwarfp-shared ALIAS dwarfp)
 else()
     add_library(dwarfp STATIC ${SOURCES} ${HEADERS} ${CONFIGURATION_FILES})
+    target_link_libraries(dwarfp PRIVATE dwarf-static)
     add_library(libdwarf::dwarfp-static ALIAS dwarfp)
 endif()
 # Macos needs the PRIVATE too using APPLE
 # needed with MINGW OR MSYS OR WIN32 OR APPLE
 # allowed everywhere.
-target_link_libraries(dwarfp PRIVATE dwarf)
 set_folder(dwarfp src/lib/libdwarfp)
 target_compile_definitions(dwarfp PUBLIC ${DEFS})
-target_compile_definitions(dwarfp PRIVATE _GNU_SOURCE)
+dwarf_common_options(dwarfp)
 set_target_properties(dwarfp PROPERTIES VERSION "${PROJECT_VERSION}" SOVERSION "${PROJECT_VERSION_MAJOR}")
-target_compile_options(dwarfp PRIVATE ${DW_COMPILER_FLAGS}
-    ${DW_FWALL})
+
 msvc_posix(dwarfp)
 set_target_properties(dwarfp PROPERTIES PUBLIC_HEADER "libdwarfp.h")
 

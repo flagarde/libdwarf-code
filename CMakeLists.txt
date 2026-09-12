@@ -15,13 +15,13 @@ option(ENABLE_DECOMPRESSION
 #  This adds compiler option -Wall (gcc compiler warnings)
 option(WALL "Add -Wall" FALSE)
 option(BUILD_DWARFDUMP "Build dwarfdump (default is YES)" TRUE)
-option(BUILD_DWARFGEN "Build dwarfgen (default is NO)" FALSE)
+option(BUILD_DWARFGEN "Build dwarfgen (default is NO)" TRUE)
 message(STATUS "Building dwarfgen    ... ${BUILD_DWARFGEN}")
 
-option(BUILD_DWARFEXAMPLE "Build dwarfexample (default is NO)" FALSE)
+option(BUILD_DWARFEXAMPLE "Build dwarfexample (default is NO)" TRUE)
 message(STATUS "Building dwarfexample... ${BUILD_DWARFEXAMPLE}")
 
-option(DO_TESTING "Do certain api tests (default is NO)" FALSE)
+option(DO_TESTING "Do certain api tests (default is NO)" TRUE)
 message(STATUS "Building api tests   ... ${DOTESTS}")
 ### end what was configure.cmake
 
@@ -260,40 +260,50 @@ else()
 endif()
 
 function(dwarf_common_options TARGET)
+  get_target_property(TARGET_TYPE ${TARGET} TYPE)
+  if(TARGET_TYPE STREQUAL "INTERFACE_LIBRARY")
+    set(VISIBILITY INTERFACE)
+  else()
+    set(VISIBILITY PRIVATE)
+  endif()
+
   msvc_posix(${TARGET})
-  target_compile_definitions(${TARGET} INTERFACE $<$<PLATFORM_ID:Linux>:_GNU_SOURCE>)
-  target_compile_options(${TARGET} INTERFACE
-    ${COMPILER_FLAGS}
-    $<$<AND:$<BOOL:${WALL}>,$<COMPILE_LANGUAGE:CXX>,$<CXX_COMPILER_ID:GNU,Clang,AppleClang>>:
-        -Wall
-        -Wextra
-        -Wno-unused-private-field
-        -Wpointer-arith
-        -Wmissing-declarations
-        -Wcomment
-        -Wformat
-        -Wpedantic
-        -Wuninitialized
-        -Wshadow
-        -Wno-long-long
-        -Werror
-    >
-    $<$<AND:$<BOOL:${WALL}>,$<COMPILE_LANGUAGE:C>,$<C_COMPILER_ID:GNU,Clang,AppleClang>>:
-        -Wall
-        -Wextra
-        -Wno-unused-private-field
-        -Wpointer-arith
-        -Wmissing-declarations
-        -Wcomment
-        -Wformat
-        -Wpedantic
-        -Wuninitialized
-        -Wshadow
-        -Wno-long-long
-        -Werror
-        -Wmissing-prototypes -Wdeclaration-after-statement
-    >
-)
+
+  target_compile_definitions(${TARGET} ${VISIBILITY} $<$<PLATFORM_ID:Linux>:_GNU_SOURCE>)
+
+  target_compile_options(${TARGET} ${VISIBILITY}
+
+        $<$<AND:$<BOOL:${WALL}>,$<COMPILE_LANGUAGE:CXX>,$<CXX_COMPILER_ID:GNU,Clang,AppleClang>>:
+            -Wall
+            -Wextra
+            -Wno-unused-private-field
+            -Wpointer-arith
+            -Wmissing-declarations
+            -Wcomment
+            -Wformat
+            -Wpedantic
+            -Wuninitialized
+            -Wshadow
+            -Wno-long-long
+            -Werror
+        >
+
+        $<$<AND:$<BOOL:${WALL}>,$<COMPILE_LANGUAGE:C>,$<C_COMPILER_ID:GNU,Clang,AppleClang>>:
+            -Wall
+            -Wextra
+            -Wpointer-arith
+            -Wmissing-declarations
+            -Wcomment
+            -Wformat
+            -Wpedantic
+            -Wuninitialized
+            -Wshadow
+            -Wno-long-long
+            -Werror
+            -Wmissing-prototypes
+            -Wdeclaration-after-statement
+        >
+    )
 endfunction()
 
 

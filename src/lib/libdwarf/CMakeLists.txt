@@ -117,16 +117,6 @@ set_source_group(CONFIGURATION_FILES "Configuration Files"
   "${PROJECT_SOURCE_DIR}/cmake/config.h.in"
   "${PROJECT_BINARY_DIR}/config.h")
 
-
-# All the things common to shared and static builds
-add_library(dwarf-common INTERFACE)
-set_folder(dwarf-common src/lib/libdwarf)
-msvc_posix(dwarf-common)
-if(ZLIB_FOUND AND zstd_FOUND)
-  target_link_libraries(dwarf-common INTERFACE ZLIB::ZLIB ${ZSTD_LIB} )
-endif()
-target_compile_options(dwarf-common INTERFACE ${COMPILER_FLAGS} ${DW_FWALL})
-target_compile_definitions(dwarf-common INTERFACE $<$<PLATFORM_ID:Linux>:_GNU_SOURCE>)
 # The -DPIC is so we find the right DW_API value in libdwarf.h with cmake with Linux.
 # Dwarfgen requires all symbols in .so to be visible, so do not say hidden on libdwarf in that case.
 
@@ -135,6 +125,8 @@ add_library(dwarf-shared SHARED
             ${SOURCES}
             ${HEADERS}
             ${CONFIGURATION_FILES})
+set_folder(dwarf-shared src/lib/libdwarf)
+dwarf_common_options(dwarf-shared)
 set_target_properties(dwarf-shared PROPERTIES 
                                    C_VISIBILITY_PRESET hidden
                                    VISIBILITY_INLINES_HIDDEN TRUE
@@ -144,7 +136,7 @@ set_target_properties(dwarf-shared PROPERTIES
                                    VERSION "${PROJECT_VERSION}"
                                    SOVERSION "${PROJECT_VERSION_MAJOR}")
 target_compile_definitions(dwarf-shared PUBLIC LIBDWARF_BUILD PIC)
-target_link_libraries(dwarf-shared PRIVATE dwarf-common)
+target_link_libraries(dwarf-shared PRIVATE ZLIB::ZLIB ${ZSTD_LIB})
 target_include_directories(dwarf-shared PUBLIC
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src/lib/libdwarf>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
@@ -156,13 +148,15 @@ add_library(dwarf-static STATIC
             ${SOURCES}
             ${HEADERS}
             ${CONFIGURATION_FILES})
+set_folder(dwarf-static src/lib/libdwarf)
+dwarf_common_options(dwarf-static)
 set_target_properties(dwarf-static PROPERTIES 
                                    POSITION_INDEPENDENT_CODE $<$<BOOL:${PIC_ALWAYS}>:ON>
                                    OUTPUT_NAME "$<$<PLATFORM_ID:Windows>:dwarf-static>$<$<NOT:$<PLATFORM_ID:Windows>>:dwarf>"
                                    EXPORT_NAME "dwarf-static"
                                    PUBLIC_HEADER "libdwarf.h;dwarf.h")
 target_compile_definitions(dwarf-static PUBLIC LIBDWARF_STATIC $<$<BOOL:${PIC_ALWAYS}>:PIC>)
-target_link_libraries(dwarf-static PRIVATE dwarf-common)
+target_link_libraries(dwarf-static PRIVATE ZLIB::ZLIB ${ZSTD_LIB})
 target_include_directories(dwarf-static PUBLIC
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src/lib/libdwarf>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
@@ -179,7 +173,7 @@ include(CMakePackageConfigHelpers)
 configure_package_config_file(${PROJECT_SOURCE_DIR}/src/lib/libdwarf/cmake/libdwarfConfig.cmake.in "${CMAKE_CURRENT_BINARY_DIR}/libdwarfConfig.cmake" INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/libdwarf")
 write_basic_package_version_file("${CMAKE_CURRENT_BINARY_DIR}/libdwarfConfigVersion.cmake" VERSION "${PROJECT_VERSION}" COMPATIBILITY SameMinorVersion)
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/libdwarfConfig.cmake" "${CMAKE_CURRENT_BINARY_DIR}/libdwarfConfigVersion.cmake" DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/libdwarf")
-install(TARGETS dwarf-common dwarf-shared dwarf-static EXPORT libdwarfTargets
+install(TARGETS dwarf-shared dwarf-static EXPORT libdwarfTargets
         ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
         LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
         PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
@@ -188,7 +182,7 @@ install(EXPORT libdwarfTargets
         NAMESPACE libdwarf::
         DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/libdwarf")
 export(
-  TARGETS dwarf-common dwarf-shared dwarf-static
+  TARGETS dwarf-shared dwarf-static
   NAMESPACE libdwarf::
   FILE "${CMAKE_CURRENT_BINARY_DIR}/libdwarf-targets.cmake"
 )

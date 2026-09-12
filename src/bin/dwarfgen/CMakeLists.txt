@@ -20,8 +20,7 @@ set_source_group(CONFIGURATION_FILES "Configuration Files"
 add_executable(dwarfgen ${SOURCES} ${HEADERS} ${CONFIGURATION_FILES})
 
 set_folder(dwarfgen src/bin/dwarfgen)
-
-target_compile_options(dwarfgen PRIVATE ${DW_FWALLXX})
+dwarf_common_options(dwarfgen)
 target_compile_definitions(dwarfgen PRIVATE ${DW_LIBDWARF_STATIC})
 message("Current cmake src dir ${CMAKE_CURRENT_SOURCE_DIR}")
 target_include_directories(dwarfgen PRIVATE

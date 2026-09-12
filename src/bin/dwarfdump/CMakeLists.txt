@@ -63,13 +63,12 @@ set_source_group(CONFIGURATION_FILES "Configuration Files"
   ${PROJECT_BINARY_DIR}/config.h)
 	
 add_executable(dwarfdump ${SOURCES} ${HEADERS} ${CONFIGURATION_FILES})
-
+dwarf_common_options(dwarfdump)
 set_folder(dwarfdump src/bin/dwarfdump)
 
 target_compile_definitions(dwarfdump PRIVATE
     "CONFPREFIX=${CMAKE_INSTALL_PREFIX}/lib" ${DW_LIBDWARF_STATIC}
     _GNU_SOURCE)
-target_compile_options(dwarfdump PRIVATE ${DW_FWALL})
 
 target_link_libraries(dwarfdump PRIVATE dwarf-static)
 
