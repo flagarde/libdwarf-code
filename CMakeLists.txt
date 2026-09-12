@@ -28,7 +28,6 @@ message(STATUS "Building api tests   ... ${DOTESTS}")
 option(PIC_ALWAYS "Build libdwarf with position-independent code for both static and shared (default is NO)" FALSE)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
-include_directories( ${PROJECT_BINARY_DIR} )
 
 # used to compile on MSVC upto 2013 where snprintf is not available
 macro(msvc_posix target)

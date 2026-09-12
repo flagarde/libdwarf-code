@@ -139,6 +139,7 @@ target_compile_definitions(dwarf-shared PRIVATE LIBDWARF_BUILD PUBLIC PIC)
 target_link_libraries(dwarf-shared PRIVATE ZLIB::ZLIB ${ZSTD_LIB})
 target_include_directories(dwarf-shared PUBLIC
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src/lib/libdwarf>
+    $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
   )
 add_library(libdwarf::dwarf ALIAS dwarf-shared)
@@ -159,6 +160,7 @@ target_compile_definitions(dwarf-static PUBLIC LIBDWARF_STATIC $<$<BOOL:${PIC_AL
 target_link_libraries(dwarf-static PRIVATE ZLIB::ZLIB ${ZSTD_LIB})
 target_include_directories(dwarf-static PUBLIC
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src/lib/libdwarf>
+    $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
   )
 add_library(libdwarf::dwarf-static ALIAS dwarf-static)
